@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>✦ Вечный ✦ | OSINT</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+      background-color: #0a0a0a;
+      color: #eee;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      line-height: 1.6;
+      overflow-x: hidden;
+      cursor: default;
+    }
+    canvas#bg {
+      position: fixed;
+      z-index: -1;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: block;
+    }
+    header {
+      background-color: #111;
+      padding: 25px 20px;
+      border-bottom: 3px solid #bf005b;
+      box-shadow: 0 0 12px #bf005baa;
+      text-align: center;
+      user-select: none;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    header h1 {
+      font-size: 2.4rem;
+      color: #bf005b;
+      text-shadow:
+        0 0 6px #bf005baa;
+      letter-spacing: 0.15em;
+      font-weight: 900;
+    }
+    nav {
+      margin-top: 15px;
+      display: flex;
+      justify-content: center;
+      gap: 22px;
+      flex-wrap: wrap;
+    }
+    nav a {
+      color: #eee;
+      text-decoration: none;
+      font-weight: 700;
+      padding: 10px 25px;
+      border: 2px solid #bf005b;
+      border-radius: 6px;
+      transition:
+        background-color 0.3s ease,
+        color 0.3s ease,
+        box-shadow 0.4s ease,
+        transform 0.3s ease;
+      cursor: pointer;
+      user-select: none;
+      font-size: 1.05rem;
+      box-shadow: inset 0 0 6px #bf005b88;
+      display: inline-block;
+    }
+    nav a.active,
+    nav a:hover {
+      background-color: #bf005b;
+      color: #111;
+      box-shadow:
+        0 0 8px #bf005bbb,
+        0 0 14px #bf005bbb,
+        inset 0 0 10px #bf005bcc;
+      transform: scale(1.07);
+    }
+    main {
+      flex-grow: 1;
+      max-width: 900px;
+      margin: 40px auto 50px;
+      padding: 0 20px;
+      z-index: 5;
+      position: relative;
+    }
+    section {
+      display: none;
+      animation: fadeInUp 0.5s ease forwards;
+      opacity: 0;
+    }
+    section.active {
+      display: block;
+      opacity: 1;
+    }
+    h2 {
+      color: #bf005b;
+      text-shadow:
+        0 0 12px #bf005b;
+      font-weight: 900;
+      font-size: 2rem;
+      margin-bottom: 25px;
+      letter-spacing: 0.07em;
+    }
+    p, li {
+      font-size: 1.1rem;
+      margin-bottom: 18px;
+      user-select: text;
+    }
+    ul {
+      margin-left: 20px;
+      margin-bottom: 20px;
+    }
+    code {
+      background-color: #220011;
+      color: #ff5588;
+      padding: 3px 7px;
+      border-radius: 4px;
+      font-family: 'Courier New', Courier, monospace;
+      user-select: text;
+    }
+    a {
+      color: #ff66aa;
+      text-decoration: underline;
+      transition: color 0.25s ease;
+    }
+    a:hover {
+      color: #ff99cc;
+    }
+    .price-item {
+      background-color: #111;
+      border-left: 5px solid #bf005b;
+      padding: 18px 20px;
+      margin-bottom: 22px;
+      box-shadow: 0 0 18px #bf005533;
+      border-radius: 6px;
+      font-weight: 600;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: default;
+    }
+    .price-item:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 25px #bf005baa;
+    }
+    .price-item strong {
+      color: #ff3377;
+    }
+    .sudo-terminal {
+      background-color: #1a001a;
+      color: #ff77cc;
+      font-family: 'Courier New', Courier, monospace;
+      border: 2px solid #bf005b;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow:
+        0 0 15px #bf005bcc,
+        inset 0 0 25px #bf4488cc;
+      white-space: pre-line;
+      user-select: text;
+      margin-top: 30px;
+      font-size: 0.95rem;
+      line-height: 1.4;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: default;
+    }
+    .sudo-terminal:hover {
+      transform: scale(1.03);
+      box-shadow:
+        0 0 20px #bf0077cc,
+        inset 0 0 30px #bf5599dd;
+    }
+    .sudo-title {
+      font-weight: 900;
+      font-size: 1.3rem;
+      margin-bottom: 15px;
+      text-align: center;
+      letter-spacing: 0.1em;
+      color: #bf0044;
+      text-shadow: 0 0 15px #bf005b;
+    }
+    footer {
+      background-color: #111;
+      text-align: center;
+      padding: 15px 20px;
+      color: #666;
+      font-size: 0.9rem;
+      user-select: none;
+      box-shadow: inset 0 0 15px #bf005533;
+    }
+    @keyframes fadeInUp {
+      0% {
+        opacity: 0;
+        transform: translateY(15px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    @media (max-width: 480px) {
+      nav {
+        flex-direction: column;
+        gap: 12px;
+      }
+      nav a {
+        padding: 12px 15px;
+        font-size: 1rem;
+      }
+      main {
+        margin: 30px 15px 40px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bg"></canvas>
+  <header>
+    <h1>✦ ВЕЧНЫЙ ✦</h1>
+    <nav>
+      <a href="#bio" class="active" onclick="showTab('bio', this)">BIO</a>
+      <a href="#price" onclick="showTab('price', this)">PRICE</a>
+      <a href="#contact" onclick="showTab('contact', this)">CONTACT</a>
+    </nav>
+  </header>
+  <main>
+    <!-- BIO -->
+    <section id="bio" class="active" role="region" aria-label="Biography">
+      <h2>BIO</h2>
+      <div class="price-item" tabindex="0">
+        <p><strong>Я — Вечный.</strong></p>
+        <p>Залетел в КМ в 2023 году. Изначально был обычным школьником — кидал логгеры, чекал IP и страдал короче полной хуйней. Еще всем подряд кидал вирусы, сообственно, мне тоже кидали и порой я даже попадался.</p>
+        <p>Со временем меня всерьёз зацепила тема <strong>OSINT</strong> — интернет-разведка, анализ, поиск. Я начал изучать её по-крупному: базы, пробивы, тулы, доксинг, схемы — изучал всё, что можно было, хоть мне было много чего непонятно.</p>
+        <p>Сейчас я использую свой опыт и знания не для деструктива, а <strong>для защиты мирных</strong>. Помогаю тем, кто реально нуждается, и параллельно <strong>истребляю скамеров</strong> и прочий цифровой мусор.</p>
+      </div>
+
+      <div class="price-item" tabindex="0">
+        <p><strong>Хочешь бесплатный деф?</strong> (только для мирных)<br>
+        Сабнись на мой ТГК: <a href="https://t.me/+thG7p6Huvgc3NDU0" target="_blank" rel="noopener noreferrer">@VECHNIY</a></p>
+
+        <p>Поставь в био: <code>мой деф @godlyrain</code></p>
+        <p><strong>Не мирным — деф $5 (навсегда)</strong></p>
+      </div>
+
+      <div class="price-item" tabindex="0">
+        <p>❗ Если ты скамер и после покупки дефа тебя бахнули — это уже твои проблемы. Я постараюсь помочь, но не гарантирую.</p>
+        <p>❗ Если тебя скамнули — не пиши мне. Ты сам виноват, что повёлся.</p>
+      </div>
+
+      <div class="sudo-terminal" aria-label="sudo terminal block" tabindex="0">
+        <div class="sudo-title">───[ʙᴇчный]───</div>
+        ʙᴇчный | @godlyrain
+        <br>Age: 1*
+        <br>Origin: 🇺🇦
+        <br>Kasta: OSINT
+        <br>Project: <a href="https://t.me/+thG7p6Huvgc3NDU0" target="_blank" rel="noopener noreferrer">click</a>
+        <br>Status: V KM
+        <br><br>Клан: AnonSec
+        <br>Мой бро: @ecIipse_mirnyak ❤️
+        <br><br>теги: @godlikeXD, @osintmr, @raperosint, @stalin_eblan, @userkoxik, @godlycloud
+        <br><br><strong>ПРОСЬБА</strong>
+        <br>Не пишите мне, что якобы на меня был заказан докс, мне пизд@ и ко мне едет сват — мне кристаллически поху* на все ваши липы, прозвоны и всю прочую хуйню. Всё это говно сразу летит в мусорку.
+        <br>Ты — обычный мамкин доксер, лет 13 от силы, и как только за тобой реально придут, ты зассышь и моментально сольёшься. Так что не трать ни своё, ни моё время — в ЧС или в вечный игнор.
+      </div>
+    </section>
+
+    <!-- PRICE -->
+    <section id="price" role="region" aria-label="Price list">
+      <h2>PRICE</h2>
+      <div class="price-item" tabindex="0">Запугать обидчика — <strong>3$</strong></div>
+      <div class="price-item" tabindex="0">Фулл пробив — <strong>7$</strong></div>
+      <div class="price-item" tabindex="0">ФИО + номер — <strong>3$</strong></div>
+      <div class="price-item" tabindex="0">СНОС АККАУНТОВ — <span style="color: #ff4444;">НЕ ДЕЛАЮ</span></div>
+
+      <h3 style="margin-top: 35px; color: #bf005b; text-shadow: 0 0 8px #bf005b;">Также продаю:</h3>
+      <ul>
+        <li>— софты</li>
+        <li>— тулки</li>
+        <li>— обучения</li>
+        <li>— видео-обучения по доксу</li>
+      </ul>
+      <p>Оплата: <strong>@send</strong></p>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" role="region" aria-label="Contact info">
+      <h2>CONTACT</h2>
+      <p>Связь: <strong>@godlyrain</strong></p>
+    </section>
+  </main>
+  <footer>
+    &copy; сосал?.
+  </footer>
+  <script>
+    // Переключение вкладок
+    function showTab(tabId, el) {
+      document.querySelectorAll('main section').forEach(section => {
+        section.classList.remove('active');
+        section.style.opacity = 0;
+      });
+      const activeSection = document.getElementById(tabId);
+      activeSection.classList.add('active');
+      setTimeout(() => {
+        activeSection.style.opacity = 1;
+      }, 50);
+      document.querySelectorAll('nav a').forEach(link => link.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    // Канвас фон с частицами и 3D-парраллаксом по мыши
+    const canvas = document.getElementById('bg');
+    const ctx = canvas.getContext('2d');
+
+    let width, height;
+    let mouseX = 0, mouseY = 0;
+    let centerX = 0, centerY = 0;
+
+    function resize() {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+      centerX = width / 2;
+      centerY = height / 2;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    window.addEventListener('mousemove', e => {
+      mouseX = (e.clientX - centerX) / centerX;
+      mouseY = (e.clientY - centerY) / centerY;
+    });
+
+    class Particle {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.x = Math.random() * width;
+        this.y = Math.random() * height;
+        this.z = Math.random() * width;
+        this.size = Math.random() * 2 + 0.5;
+        this.speed = 0.02 + Math.random() * 0.03;
+      }
+      update() {
+        this.z -= this.speed;
+        if (this.z <= 1) this.reset();
+      }
+      draw(ctx) {
+        const parallaxX = mouseX * 30 * (1 - this.z / width);
+        const parallaxY = mouseY * 30 * (1 - this.z / width);
+
+        const sx = (this.x - centerX) * (width / this.z) + centerX + parallaxX;
+        const sy = (this.y - centerY) * (width / this.z) + centerY + parallaxY;
+        const radius = this.size * (width / this.z);
+        ctx.beginPath();
+        ctx.arc(sx, sy, radius, 0, Math.PI * 2);
+        const alpha = 1 - this.z / width;
+        ctx.fillStyle = `rgba(191, 0, 91, ${alpha})`;
+        ctx.shadowColor = `rgba(191, 0, 91, ${alpha})`;
+        ctx.shadowBlur = 8;
+        ctx.fill();
+      }
+    }
+
+    const particles = [];
+    for (let i = 0; i < 100; i++) {
+      particles.push(new Particle());
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, width, height);
+      particles.forEach(p => {
+        p.update();
+        p.draw(ctx);
+      });
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    // Аудиоконтекст и очень мягкий звук клика
+    let audioCtx;
+    function playUltraSoftClick() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc.type = 'sine';              // самый мягкий тембр
+      osc.frequency.setValueAtTime(400, now);  // глубокий басовый звук
+
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(0.015, now + 0.004);
+      gain.gain.exponentialRampToValueAtTime(0.0005, now + 0.05);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.05);
+
+      osc.onended = () => {
+        gain.disconnect();
+        osc.disconnect();
+      };
+    }
+
+    // Добавляем анимацию и звук на наведение и клик для nav a, .price-item и .sudo-terminal
+    document.querySelectorAll('nav a, .price-item, .sudo-terminal').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        playUltraSoftClick();
+        el.style.transform = 'scale(1.03)';
+      });
+      el.addEventListener('mouseleave', () => {
+        el.style.transform = '';
+      });
+      el.addEventListener('click', () => {
+        playUltraSoftClick();
+        el.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+          el.style.transform = '';
+        }, 150);
+      });
+    });
+  </script>
+</body>
+</html>
